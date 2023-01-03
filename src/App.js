@@ -16,6 +16,26 @@ function App() {
       });
   }, []);
 
+  function fetchIncrement(event) {
+    event.preventDefault();
+    fetch("/.netlify/functions/increment", {
+      method: "POST",
+      body: JSON.stringify({
+        counter: parseInt(event.target.elements.counter.value),
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setApiResponse(data.counter);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -23,6 +43,10 @@ function App() {
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
+        <form onSubmit={fetchIncrement}>
+          <input name="counter" type="text"></input>
+          <button>Submit</button>
+        </form>
         <p>
           API Response: <code>{apiResponse}</code>
         </p>
