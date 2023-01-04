@@ -4,12 +4,21 @@ import "./App.css";
 
 function App() {
   const [apiResponse, setApiResponse] = useState();
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     fetch("/.netlify/functions/hello")
       .then((response) => response.text())
       .then((data) => {
         setApiResponse(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    fetch("/.netlify/functions/data")
+      .then((response) => response.json())
+      .then((data) => {
+        setProducts(data);
       })
       .catch((err) => {
         console.log(err);
@@ -50,14 +59,24 @@ function App() {
         <p>
           API Response: <code>{apiResponse}</code>
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Category</th>
+          </tr>
+          {products.map((p) => {
+            return (
+              <tr>
+                <td>{p.id}</td>
+                <td>{p.name}</td>
+                <td>{p.image}</td>
+                <td>{p.category}</td>
+              </tr>
+            );
+          })}
+        </table>
       </header>
     </div>
   );
