@@ -35,13 +35,13 @@ func handler(request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResp
 
 	query := "SELECT * FROM products"
 	res, err := db.Query(query)
-	defer res.Close()
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: 503,
 			Body:       "Failed to fetch from db",
 		}, nil
 	}
+	defer res.Close()
 
 	products := []Product{}
 	for res.Next() {

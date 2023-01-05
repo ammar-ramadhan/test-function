@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import netlifyIdentity from "netlify-identity-widget";
 
 function App() {
   const [apiResponse, setApiResponse] = useState();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
+    netlifyIdentity.init();
+
     fetch("/.netlify/functions/hello")
       .then((response) => response.text())
       .then((data) => {
@@ -46,39 +49,52 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <form onSubmit={fetchIncrement}>
-          <input name="counter" type="text"></input>
-          <button>Submit</button>
-        </form>
-        <p>
-          API Response: <code>{apiResponse}</code>
-        </p>
-        <table>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Image</th>
-            <th>Category</th>
-          </tr>
-          {products.map((p) => {
-            return (
+    <>
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <p>
+            Edit <code>src/App.js</code> and save to reload.
+          </p>
+          <p>
+            API Response: <code>{apiResponse}</code>
+          </p>
+          <table>
+            <thead>
               <tr>
-                <td>{p.id}</td>
-                <td>{p.name}</td>
-                <td>{p.image}</td>
-                <td>{p.category}</td>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Category</th>
               </tr>
-            );
-          })}
-        </table>
-      </header>
-    </div>
+            </thead>
+            <tbody>
+              {products.map((p, i) => {
+                return (
+                  <tr key={"row" + i}>
+                    <td>{p.id}</td>
+                    <td>{p.name}</td>
+                    <td>{p.image}</td>
+                    <td>{p.category}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div>
+            <button
+              type="button"
+              onClick={() => netlifyIdentity.open("signup")}
+            >
+              Sign Up
+            </button>
+            <button type="button" onClick={() => netlifyIdentity.open("login")}>
+              Login
+            </button>
+          </div>
+        </header>
+      </div>
+    </>
   );
 }
 
