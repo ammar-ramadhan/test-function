@@ -28,6 +28,7 @@ function App() {
       });
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   function fetchIncrement(event) {
     event.preventDefault();
     fetch("/.netlify/functions/increment", {
