@@ -12,9 +12,15 @@ exports.handler = async function (event, context) {
     console.log({ token });
     const response = await fetch(identity.url + "/user", {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
-      headers: new Headers({
-        Authorization: token,
-      }),
+      headers: new Headers(
+        Object.assign(
+          {},
+          {
+            Authorization: token,
+          },
+          event.headers
+        )
+      ),
     });
     const result = await response.json();
     console.log({ result });
