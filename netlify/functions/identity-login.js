@@ -1,32 +1,12 @@
-import fetch, { Headers } from "node-fetch";
+import fetch from "node-fetch";
 
 exports.handler = async function (event, context) {
-  const { identity, user } = context.clientContext;
-  console.log(context.clientContext);
-  console.log({ event });
-  console.log({ context });
-  //   console.log({ identity, user });
-  //   console.log({ context });
-  if (identity) {
-    const token = "Bearer " + identity.token;
-    console.log({ token });
-    const response = await fetch(identity.url + "/user", {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
-      headers: new Headers(
-        Object.assign(
-          {},
-          {
-            Authorization: token,
-          },
-          event.headers
-        )
-      ),
-    });
-    const result = await response.json();
-    console.log({ result });
+  //   const { identity, user } = context.clientContext;
+  if (event.body) {
+    const data = JSON.parse(event.body);
+    console.log(data);
   }
   return {
     statusCode: 200,
-    body: JSON.stringify(context),
   };
 };
