@@ -14,7 +14,6 @@ function App() {
   const [apiResponse, setApiResponse] = useState();
   const [products, setProducts] = useState([]);
   const [isSignedIn, setSignedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   // TODO: Replace the following with your app's Firebase project configuration
   var firebaseConfig = {
@@ -27,24 +26,7 @@ function App() {
     appId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   };
   firebase.initializeApp(firebaseConfig);
-  // const firebaseAuth = getAuth(app);
 
-  var uiConfig = {
-    callbacks: {
-      signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-        // User successfully signed in.
-        // Return type determines whether we continue the redirect automatically
-        // or whether we leave that to developer to handle.
-        console.log(authResult);
-        return true;
-      },
-      uiShown: function () {
-        setLoading(false);
-      },
-    },
-    signInSuccessUrl: "/",
-    signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
-  };
   var authUI = firebase.auth();
   authUI.onAuthStateChanged(
     function (user) {
@@ -87,9 +69,24 @@ function App() {
       console.log(error);
     }
   );
-  var ui = auth.AuthUI.getInstance() || new auth.AuthUI(authUI);
 
   useEffect(() => {
+    var uiConfig = {
+      callbacks: {
+        signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+          // User successfully signed in.
+          // Return type determines whether we continue the redirect automatically
+          // or whether we leave that to developer to handle.
+          console.log(authResult);
+          return true;
+        },
+        uiShown: function () {},
+      },
+      signInSuccessUrl: "/",
+      signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
+    };
+
+    var ui = auth.AuthUI.getInstance() || new auth.AuthUI(authUI);
     ui.start("#firebaseui-auth-container", uiConfig);
 
     fetch("/.netlify/functions/hello")
@@ -108,7 +105,7 @@ function App() {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [authUI]);
 
   // eslint-disable-next-line no-unused-vars
   function fetchIncrement(event) {
