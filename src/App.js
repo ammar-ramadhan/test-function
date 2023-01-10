@@ -1,14 +1,96 @@
 import { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import netlifyIdentity from "netlify-identity-widget";
+// import { initializeApp } from "firebase/app";
+// import { getAuth } from "firebase/auth";
+// import firebase from "firebase";
+import { auth } from "firebaseui";
+import firebase from "firebase/compat/app";
+// import "firebase/compat/auth";
+// import "firebase/compat/firestore";
+// import netlifyIdentity from "netlify-identity-widget";
 
 function App() {
   const [apiResponse, setApiResponse] = useState();
   const [products, setProducts] = useState([]);
+  const [isSignedIn, setSignedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // TODO: Replace the following with your app's Firebase project configuration
+  var firebaseConfig = {
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_SENDER_ID,
+    appId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  };
+  firebase.initializeApp(firebaseConfig);
+  // const firebaseAuth = getAuth(app);
+
+  var uiConfig = {
+    callbacks: {
+      signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+        // User successfully signed in.
+        // Return type determines whether we continue the redirect automatically
+        // or whether we leave that to developer to handle.
+        console.log(authResult);
+        return true;
+      },
+      uiShown: function () {
+        setLoading(false);
+      },
+    },
+    signInSuccessUrl: "/",
+    signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
+  };
+  var authUI = firebase.auth();
+  authUI.onAuthStateChanged(
+    function (user) {
+      if (user) {
+        setSignedIn(true);
+        // User is signed in.
+        var displayName = user.displayName;
+        var email = user.email;
+        var emailVerified = user.emailVerified;
+        var photoURL = user.photoURL;
+        var uid = user.uid;
+        var phoneNumber = user.phoneNumber;
+        var providerData = user.providerData;
+        user.getIdToken().then(function (accessToken) {
+          document.getElementById("sign-in-status").textContent = "Signed in";
+          document.getElementById("account-details").textContent =
+            JSON.stringify(
+              {
+                displayName: displayName,
+                email: email,
+                emailVerified: emailVerified,
+                phoneNumber: phoneNumber,
+                photoURL: photoURL,
+                uid: uid,
+                accessToken: accessToken,
+                providerData: providerData,
+              },
+              null,
+              "  "
+            );
+        });
+      } else {
+        setSignedIn(false);
+        // User is signed out.
+        document.getElementById("sign-in-status").textContent = "Signed out";
+        document.getElementById("account-details").textContent = "null";
+      }
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
+  var ui = auth.AuthUI.getInstance() || new auth.AuthUI(authUI);
 
   useEffect(() => {
-    netlifyIdentity.init();
+    ui.start("#firebaseui-auth-container", uiConfig);
 
     fetch("/.netlify/functions/hello")
       .then((response) => response.text())
@@ -54,6 +136,47 @@ function App() {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
+          {!isSignedIn && (
+            <div
+              style={{
+                border: "1px solid white",
+                padding: "50px",
+                width: "50vw",
+              }}
+            >
+              <div id="firebaseui-auth-container"></div>
+            </div>
+          )}
+          <div
+            style={{
+              border: "1px solid white",
+              padding: "50px",
+              width: "50vw",
+            }}
+          >
+            <h1>Welcome to My Awesome App</h1>
+            <div id="sign-in-status"></div>
+            {isSignedIn && (
+              <button
+                type="button"
+                onClick={() => {
+                  authUI.signOut().then(() => {
+                    alert("Sign Out Successfull!");
+                  });
+                }}
+              >
+                Sign Out
+              </button>
+            )}
+            <pre
+              id="account-details"
+              style={{
+                wordWrap: "break-word",
+                whiteSpace: "pre-wrap",
+                textAlign: "left",
+              }}
+            ></pre>
+          </div>
           <p>
             Edit <code>src/App.js</code> and save to reload.
           </p>
@@ -82,17 +205,7 @@ function App() {
               })}
             </tbody>
           </table>
-          <div>
-            <button
-              type="button"
-              onClick={() => netlifyIdentity.open("signup")}
-            >
-              Sign Up
-            </button>
-            <button type="button" onClick={() => netlifyIdentity.open("login")}>
-              Login
-            </button>
-          </div>
+          <div></div>
         </header>
       </div>
     </>
