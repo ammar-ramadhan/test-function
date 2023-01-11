@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 // import { initializeApp } from "firebase/app";
-// import { getAuth } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 // import firebase from "firebase";
 import { auth } from "firebaseui";
 import firebase from "firebase/compat/app";
@@ -15,19 +15,7 @@ function App() {
   const [products, setProducts] = useState([]);
   const [isSignedIn, setSignedIn] = useState(false);
 
-  // TODO: Replace the following with your app's Firebase project configuration
-  var firebaseConfig = {
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_SENDER_ID,
-    appId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  };
-  firebase.initializeApp(firebaseConfig);
-
-  var authUI = firebase.auth();
+  var authUI = getAuth();
   authUI.onAuthStateChanged(
     function (user) {
       if (user) {
